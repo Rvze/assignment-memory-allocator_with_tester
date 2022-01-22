@@ -192,6 +192,7 @@ static struct block_header *grow_heap(struct block_header *restrict last, size_t
 
 /*  Реализует основную логику malloc и возвращает заголовок выделенного блока */
 static struct block_header *memalloc(size_t query, struct block_header *heap_start) {
+    query = size_max(query, BLOCK_MIN_CAPACITY);
     struct block_search_result result = try_memalloc_existing(query, heap_start);
 
     switch (result.type) {
@@ -204,12 +205,14 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
             grow_heap(result.block, query);
         default:
             return NULL;
+
     }
+
 
 }
 
-void *_malloc(size_t query, void *heap) {
-    struct block_header *const addr = memalloc(query, heap);
+void *_malloc(size_t query) {
+    struct block_header *const addr = memalloc(query, (struct block_header *) START_HEAP);
     if (addr) return addr->contents;
     else return NULL;
 }

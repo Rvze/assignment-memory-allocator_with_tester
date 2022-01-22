@@ -11,7 +11,7 @@
 
 #define START_HEAP ((void*)0x04040000)
 
-void *_malloc(size_t query, void *heap);
+void *_malloc(size_t query);
 
 void _free(void *mem);
 
