@@ -57,7 +57,7 @@ static void *map_pages(void const *addr, size_t length, int additional_flags) {
 static struct region alloc_region(void const *addr, size_t query) {
     bool status = true;
     query = region_actual_size(query);
-    void *reg_adr = map_pages(START_HEAP, query, MAP_FIXED_NOREPLACE);
+    void *reg_adr = map_pages(addr, query, MAP_FIXED_NOREPLACE);
     if (HEAP_START == NULL) HEAP_START = reg_adr;
     if (reg_adr == MAP_FAILED || reg_adr == NULL) {
         status = false;
