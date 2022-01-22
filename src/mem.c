@@ -2,11 +2,9 @@
 
 #define _DEFAULT_SOURCE
 
-#include <assert.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stddef.h>
-#include <stdlib.h>
+#include <unistd.h>
 
 
 #include "mem.h"

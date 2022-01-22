@@ -2,8 +2,8 @@
 #define _MEM_INTERNALS_
 
 #include <inttypes.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 
 #define REGION_MIN_SIZE (2 * 4096)
