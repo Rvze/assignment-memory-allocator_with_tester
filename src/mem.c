@@ -147,22 +147,23 @@ struct block_search_result {
 
 
 static struct block_search_result find_good_or_last(struct block_header *restrict block, size_t sz) {
-    if (!block) {
-        return (struct block_search_result) {.type = BSR_CORRUPTED};
-    }
-    struct block_header *current = block;
-    struct block_header *last = NULL;
-
-    while (current) {
-        if (block_is_big_enough(sz, block) && current->is_free) {
-            return (struct block_search_result) {.type = BSR_FOUND_GOOD_BLOCK, .block = current};
+    while (true) {
+        if (block->is_free) {
+            while (block->next != NULL && block->next->is_free) {
+                if (!try_merge_with_next(block))
+                    break;
+            }
+            if (block_is_big_enough(sz, block))
+                return (struct block_search_result) {.type = BSR_FOUND_GOOD_BLOCK, .block = block};
         }
-        last = current;
-        current = current->next;
-    }
-    return (struct block_search_result) {.type = BSR_REACHED_END_NOT_FOUND, .block = last};
+        if (!block->next)
+            break;
 
+        block = block->next;
+    }
+    return (struct block_search_result) {BSR_REACHED_END_NOT_FOUND, block};
 }
+
 
 /*  Попробовать выделить память в куче начиная с блока `block` не пытаясь расширить кучу
  Можно переиспользовать как только кучу расширили. */
