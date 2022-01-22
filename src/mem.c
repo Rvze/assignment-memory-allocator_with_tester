@@ -170,8 +170,10 @@ static struct block_search_result try_memalloc_existing(size_t query, struct blo
 
     const struct block_search_result result = find_good_or_last(block, query);
 
-    if (result.type == BSR_FOUND_GOOD_BLOCK)
+    if (result.type == BSR_FOUND_GOOD_BLOCK) {
         split_if_too_big(block, query);
+        result.block->is_free = false;
+    }
 
     return result;
 }
@@ -196,21 +198,21 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
     struct block_search_result result = try_memalloc_existing(query, heap_start);
 
     switch (result.type) {
+        case BSR_CORRUPTED:
+            return NULL;
         case BSR_FOUND_GOOD_BLOCK:
-            break;
+            result.block->is_free = false;
+            return result.block;
         case BSR_REACHED_END_NOT_FOUND:
-            if ((result.block = grow_heap(result.block, query)) == NULL) {
-                return NULL;
-            }
-            split_if_too_big(result.block, query);
-            break;
+            grow_heap(result.block, query);
         default:
             return NULL;
+
     }
-    result.block->is_free = false;
-    return result.block;
+
 
 }
+
 
 void *_malloc(size_t query) {
     struct block_header *const addr = memalloc(query, (struct block_header *) START_HEAP);
