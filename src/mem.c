@@ -147,17 +147,20 @@ struct block_search_result {
 
 
 static struct block_search_result find_good_or_last(struct block_header *restrict block, size_t sz) {
-    while (try_merge_with_next(block));
-    //if the block is good, return it
-    if (block->is_free && block_is_big_enough(sz, block))
-        return (struct block_search_result) {.type = BSR_FOUND_GOOD_BLOCK, .block = block};
+    if (!block) {
+        return (struct block_search_result) {.type = BSR_CORRUPTED};
+    }
+    struct block_header *current = block;
+    struct block_header *last = NULL;
 
-    //if block is not the last one, go to the next one
-    //else return it
-    return block->next != NULL
-           ? find_good_or_last(block->next, sz)
-           : (struct block_search_result) {.type = BSR_REACHED_END_NOT_FOUND, .block = block};
-
+    while (current) {
+        if (block_is_big_enough(sz, block) && current->is_free) {
+            return (struct block_search_result) {.type = BSR_FOUND_GOOD_BLOCK, .block = current};
+        }
+        last = current;
+        current = current->next;
+    }
+    return (struct block_search_result) {.type = BSR_REACHED_END_NOT_FOUND, .block = last};
 
 }
 
