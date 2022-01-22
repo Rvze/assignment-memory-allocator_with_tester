@@ -196,18 +196,19 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
     struct block_search_result result = try_memalloc_existing(query, heap_start);
 
     switch (result.type) {
-        case BSR_CORRUPTED:
-            return NULL;
         case BSR_FOUND_GOOD_BLOCK:
-            result.block->is_free = false;
-            return result.block;
+            break;
         case BSR_REACHED_END_NOT_FOUND:
-            grow_heap(result.block, query);
+            if ((result.block = grow_heap(result.block, query)) == NULL) {
+                return NULL;
+            }
+            split_if_too_big(result.block, query);
+            break;
         default:
             return NULL;
-
     }
-
+    result.block->is_free = false;
+    return result.block;
 
 }
 
