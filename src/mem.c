@@ -19,11 +19,11 @@ void debug(const char *fmt, ...);
 
 extern inline block_size
 size_from_capacity(block_capacity
-cap);
+                   cap);
 
 extern inline block_capacity
 capacity_from_size(block_size
-sz);
+                   sz);
 
 static bool block_is_big_enough(size_t query, struct block_header *block) { return block->capacity.bytes >= query; }
 
@@ -86,7 +86,7 @@ void *heap_init(size_t initial) {
 static bool block_splittable(struct block_header *restrict block, size_t query) {
     return block->is_free &&
            query + offsetof(
-    struct block_header, contents) +BLOCK_MIN_CAPACITY <= block->capacity.bytes;
+                   struct block_header, contents) + BLOCK_MIN_CAPACITY <= block->capacity.bytes;
 }
 
 static void *split_block_addr(struct block_header *restrict block, block_size new_size) {
@@ -154,10 +154,10 @@ static struct block_search_result find_good_or_last(struct block_header *restric
 
     //if block is not the last one, go to the next one
     //else return it
-    if (block->next != NULL)
-        find_good_or_last(block->next, sz);
-    else
-        return (struct block_search_result) {.type = BSR_REACHED_END_NOT_FOUND, .block = block};
+    return block->next != NULL
+           ? find_good_or_last(block->next, sz)
+           : (struct block_search_result) {.type = BSR_REACHED_END_NOT_FOUND, .block = block};
+
 
 }
 
@@ -211,7 +211,7 @@ void *_malloc(size_t query, void *heap) {
 
 static struct block_header *block_get_header(void *contents) {
     return (struct block_header *) (((uint8_t *) contents) - offsetof(
-    struct block_header, contents));
+            struct block_header, contents));
 }
 
 void _free(void *mem) {
