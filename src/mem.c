@@ -2,14 +2,15 @@
 
 #define _DEFAULT_SOURCE
 
+#include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <assert.h>
 
-#include "mem_internals.h"
+
 #include "mem.h"
+#include "mem_internals.h"
 #include "util.h"
 
 static const void *HEAP_START = NULL;

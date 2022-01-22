@@ -1,6 +1,6 @@
+#include "mem_internals.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "mem_internals.h"
 #include "mem.h"
 #include "mem_debug.h"
 
