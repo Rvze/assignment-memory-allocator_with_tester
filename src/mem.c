@@ -11,7 +11,6 @@
 #include "mem_internals.h"
 #include "util.h"
 
-static const void *HEAP_START = NULL;
 
 void debug_block(struct block_header *b, const char *fmt, ...);
 
@@ -219,7 +218,7 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
 
 
 void *_malloc(size_t query) {
-    struct block_header *const addr = memalloc(query, (struct block_header *) START_HEAP);
+    struct block_header *const addr = memalloc(query, (struct block_header *) HEAP_START);
     if (addr) return addr->contents;
     else return NULL;
 }

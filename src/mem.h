@@ -9,7 +9,7 @@
 
 #include <sys/mman.h>
 
-#define START_HEAP ((void*)0x04040000)
+#define HEAP_START ((void*)0x04040000)
 
 void *_malloc(size_t query);
 
