@@ -154,14 +154,14 @@ static struct block_search_result find_good_or_last(struct block_header *restric
                     break;
             }
             if (block_is_big_enough(sz, block))
-                return (struct block_search_result) {.type = BSR_FOUND_GOOD_BLOCK, .block = block};
+                return (struct block_search_result) {.block = block, .type = BSR_FOUND_GOOD_BLOCK};
+
         }
         if (!block->next)
             break;
-
         block = block->next;
     }
-    return (struct block_search_result) {BSR_REACHED_END_NOT_FOUND, block};
+    return (struct block_search_result) {.block = block, .type = BSR_REACHED_END_NOT_FOUND};
 }
 
 
