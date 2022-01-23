@@ -99,13 +99,8 @@ static bool split_if_too_big(struct block_header *block, size_t query) {
         block_init(block, fst_bsz, (struct block_header *) snd_addr);
         block_init((struct block_header *) snd_addr, snd_bsz, next);
         return true;
-    }
-    if (block->is_free == false) {
+    } else
         return false;
-    } else {
-        block_init(block, size_from_capacity(block->capacity), block->next);
-        return false;
-    }
 }
 
 
@@ -205,15 +200,13 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
             if ((result.block = grow_heap(result.block, query)) == NULL) {
                 return NULL;
             }
-            split_if_too_big(result.block, query);
-            break;
+            result = try_memalloc_existing(query, result.block);
+            if (result.type != BSR_FOUND_GOOD_BLOCK)
+                return NULL;
         default:
             return NULL;
     }
-    result.block->is_free = false;
     return result.block;
-
-
 }
 
 
