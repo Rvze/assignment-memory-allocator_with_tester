@@ -128,7 +128,7 @@ static bool mergeable(struct block_header const *restrict fst, struct block_head
 static bool try_merge_with_next(struct block_header *block) {
     if (!block->next || !mergeable(block, block->next))
         return false;
-    struct block_header* next_block = block->next;
+    struct block_header *next_block = block->next;
     block->next = next_block->next;
     block->capacity.bytes += size_from_capacity(next_block->capacity).bytes;
     return true;
@@ -200,14 +200,18 @@ static struct block_header *memalloc(size_t query, struct block_header *heap_sta
         case BSR_CORRUPTED:
             return NULL;
         case BSR_FOUND_GOOD_BLOCK:
-            result.block->is_free = false;
-            return result.block;
+            break;
         case BSR_REACHED_END_NOT_FOUND:
-            grow_heap(result.block, query);
+            if ((result.block = grow_heap(result.block, query)) == NULL) {
+                return NULL;
+            }
+            split_if_too_big(result.block, query);
+            break;
         default:
             return NULL;
-
     }
+    result.block->is_free = false;
+    return result.block;
 
 
 }
