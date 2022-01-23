@@ -56,14 +56,15 @@ static void *map_pages(void const *addr, size_t length, int additional_flags) {
 /*  аллоцировать регион памяти и инициализировать его блоком */
 static struct region alloc_region(void const *addr, size_t query) {
     bool status = true;
-    query = region_actual_size(query);
+    query = region_actual_size(query + offsetof(struct block_header, contents));
     void *reg_adr = map_pages(addr, query, MAP_FIXED_NOREPLACE);
-    if (HEAP_START == NULL) HEAP_START = reg_adr;
-    if (reg_adr == MAP_FAILED || reg_adr == NULL) {
-        status = false;
+    if (reg_adr == MAP_FAILED) {
         reg_adr = map_pages(addr, query, 0);
         if (reg_adr == MAP_FAILED || reg_adr == NULL) {
             return REGION_INVALID;
+        }
+        if (reg_adr != addr) {
+            status = false;
         }
     }
     const struct region new_region = {.addr = reg_adr, .size = query, .extends = status};
