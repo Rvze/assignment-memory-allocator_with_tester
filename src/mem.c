@@ -60,7 +60,7 @@ static struct region alloc_region(void const *addr, size_t query) {
     void *reg_adr = map_pages(addr, query, MAP_FIXED_NOREPLACE);
     if (reg_adr == MAP_FAILED) {
         reg_adr = map_pages(addr, query, 0);
-        if (reg_adr == MAP_FAILED || reg_adr == NULL) {
+        if (reg_adr == MAP_FAILED) {
             return REGION_INVALID;
         }
         if (reg_adr != addr) {
