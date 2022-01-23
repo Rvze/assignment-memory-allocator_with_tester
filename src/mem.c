@@ -170,7 +170,7 @@ static struct block_search_result try_memalloc_existing(size_t query, struct blo
     const struct block_search_result result = find_good_or_last(block, query);
 
     if (result.type == BSR_FOUND_GOOD_BLOCK) {
-        split_if_too_big(block, query);
+        split_if_too_big(result.block, query);
         result.block->is_free = false;
     }
 
