@@ -128,8 +128,9 @@ static bool mergeable(struct block_header const *restrict fst, struct block_head
 static bool try_merge_with_next(struct block_header *block) {
     if (!block->next || !mergeable(block, block->next))
         return false;
-    block->capacity.bytes += size_from_capacity(block->next->capacity).bytes;
-    block->next = block->next->next;
+    struct block_header* next_block = block->next;
+    block->next = next_block->next;
+    block->capacity.bytes += size_from_capacity(next_block->capacity).bytes;
     return true;
 }
 
