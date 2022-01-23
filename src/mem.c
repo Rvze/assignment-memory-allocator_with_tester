@@ -67,8 +67,8 @@ static struct region alloc_region(void const *addr, size_t query) {
             status = false;
         }
     }
-    const struct region new_region = {.addr = reg_adr, .size = query, .extends = status};
-    block_init(reg_adr, (block_size) {.bytes = query}, NULL);
+    const struct region new_region = (struct region) {reg_adr, query, status};
+    block_init(reg_adr, (block_size) {query}, NULL);
     return new_region;
 }
 
