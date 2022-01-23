@@ -89,25 +89,23 @@ static bool block_splittable(struct block_header *restrict block, size_t query) 
                    struct block_header, contents) + BLOCK_MIN_CAPACITY <= block->capacity.bytes;
 }
 
-static void *split_block_addr(struct block_header *restrict block, block_size new_size) {
-    return (void *) ((uint8_t *) block + new_size.bytes);
-}
-
 
 static bool split_if_too_big(struct block_header *block, size_t query) {
-    const size_t capacity_query = size_max(BLOCK_MIN_CAPACITY, query);
-    if (block_splittable(block, capacity_query)) {
-        const block_capacity occupied_block_capacity = {query + offsetof(struct block_header, contents)};
-        const block_size remaining_space = {size_from_capacity(block->capacity).bytes - occupied_block_capacity.bytes};
-
-        void *next_block_header = split_block_addr(block, remaining_space);
-
-
-        block_init(next_block_header, remaining_space, block->next);
-        block->next = next_block_header;
+    if (block_splittable(block, query)) {
+        block_size fst_bsz = size_from_capacity((block_capacity) {.bytes = query});
+        block_size snd_bsz = size_from_capacity((block_capacity) {.bytes = block->capacity.bytes - fst_bsz.bytes});
+        void *snd_addr = (void *) (block->contents + query);
+        struct block_header *next = block->next;
+        block_init(block, fst_bsz, (struct block_header *) snd_addr);
+        block_init((struct block_header *) snd_addr, snd_bsz, next);
         return true;
     }
-    return false;
+    if (block->is_free == false) {
+        return false;
+    } else {
+        block_init(block, size_from_capacity(block->capacity), block->next);
+        return false;
+    }
 }
 
 
@@ -155,7 +153,6 @@ static struct block_search_result find_good_or_last(struct block_header *restric
             }
             if (block_is_big_enough(sz, block))
                 return (struct block_search_result) {.block = block, .type = BSR_FOUND_GOOD_BLOCK};
-
         }
         if (!block->next)
             break;
